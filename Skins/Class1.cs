@@ -13,6 +13,7 @@ namespace Skins
 		public bool hasCube;
 		public bool hasBall;
 		public bool hasDisc;
+		public bool hasPlayer;
 		
 		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
 		{
@@ -54,6 +55,14 @@ namespace Skins
 				hasBall = true;
 				Bytes = System.IO.File.ReadAllBytes(MelonUtils.UserDataDirectory + "/Skins/Ball/skin.png");
 				ImageConversion.LoadImage(ballTexture, Bytes);
+			}
+			
+			Texture2D playerTexture = new Texture2D(2, 2);
+			if (System.IO.File.Exists(MelonUtils.UserDataDirectory + "/Skins/Player/skin.png"))
+			{
+				hasPlayer = true;
+				Bytes = System.IO.File.ReadAllBytes(MelonUtils.UserDataDirectory + "/Skins/Player/skin.png");
+				ImageConversion.LoadImage(playerTexture, Bytes);
 			}
 
 			foreach (MeshRenderer meshRenderer in Resources.FindObjectsOfTypeAll<MeshRenderer>())
@@ -117,7 +126,21 @@ namespace Skins
 					}
 				}
 			}
-			
+
+			foreach (SkinnedMeshRenderer skinnedMeshRenderer in Resources.FindObjectsOfTypeAll<SkinnedMeshRenderer>())
+			{
+				if (skinnedMeshRenderer.transform.parent != null)
+				{
+					if (skinnedMeshRenderer.gameObject.name.Contains("Suit") && hasPlayer)
+					{
+						MelonLogger.Msg("Applying new texture");
+						foreach (var property in skinnedMeshRenderer.material.GetTexturePropertyNames())
+						{
+							skinnedMeshRenderer.material.SetTexture(property, playerTexture);
+						}
+					}
+				}
+			}
 		}
 	}
 }
